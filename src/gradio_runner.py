@@ -52,13 +52,14 @@ fix_pydantic_duplicate_validators_error()
 
 from enums import DocumentSubset, no_model_str, no_lora_str, no_server_str, LangChainAction, LangChainMode, \
     DocumentChoice, langchain_modes_intrinsic
-from gradio_themes import H2oTheme, SoftTheme, get_h2o_title, get_simple_title, get_dark_js, spacing_xsm, radius_xsm, \
-    text_xsm
+from gradio_themes import H2oTheme, SoftTheme, get_h2o_title, get_simple_title,\
+    get_dark_js, get_heap_js, wrap_js_to_lambda,\
+    spacing_xsm, radius_xsm, text_xsm
 from prompter import prompt_type_to_model_name, prompt_types_strings, inv_prompt_type_to_model_lower, non_hf_types, \
     get_prompt
 from utils import flatten_list, zip_data, s3up, clear_torch_cache, get_torch_allocated, system_info_print, \
     ping, get_short_name, makedirs, get_kwargs, remove, system_info, ping_gpu, get_url, get_local_ip, \
-    save_collection_names
+    save_collection_names, get_heap_app_id
 from gen import get_model, languages_covered, evaluate, score_qa, inputs_kwargs_list, scratch_base_dir, \
     get_max_max_new_tokens, get_minmax_top_k_docs, history_to_context, langchain_actions, langchain_agents_list, \
     update_langchain
@@ -1322,7 +1323,7 @@ def go_gradio(**kwargs):
             None,
             None,
             None,
-            _js=get_dark_js(),
+            _js=wrap_js_to_lambda(get_dark_js()),
             api_name="dark" if allow_api else None,
             queue=False,
         )
@@ -2476,7 +2477,8 @@ def go_gradio(**kwargs):
                        ,
                        queue=False, api_name='stop' if allow_api else None).then(clear_torch_cache, queue=False)
 
-        demo.load(None, None, None, _js=get_dark_js() if kwargs['dark'] else None)
+        app_js = wrap_js_to_lambda(get_dark_js(), get_heap_js(get_heap_app_id()))
+        demo.load(None, None, None, _js=app_js)
 
     demo.queue(concurrency_count=kwargs['concurrency_count'], api_open=kwargs['api_open'])
     favicon_path = "h2o-logo.svg"

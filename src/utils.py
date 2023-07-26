@@ -1099,3 +1099,12 @@ def load_collection_enum(extra):
 
 def remove_collection_enum():
     remove(visible_langchain_modes_file)
+
+def get_heap_app_id():
+    """Return the Heap App tracking ID stored in the environment property H2OGPT_HEAP_APP_ID.
+
+    If environment is empty, the returned id corresponds to
+    development environment.
+    """
+    return os.environ.get("H2OGPT_HEAP_APP_ID", "1680123994")
+
