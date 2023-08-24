@@ -92,6 +92,13 @@ def get_db(sources, use_openai_embedding=False, db_type='faiss',
         index_name = collection_name.capitalize()
         db = Weaviate.from_documents(documents=sources, embedding=embedding, client=client, by_text=False,
                                      index_name=index_name)
+    elif db_type == 'qdrant':
+        # import qdrant_client
+        from langchain.vectorstores import Qdrant
+        assert os.getenv("QDRANT_API_KEY") is not None, "Set ENV QDRANT_API_KEY"
+        api_key = os.getenv("QDRANT_API_KEY")
+        url = os.getenv("QDRANT_HOST")
+        db = Qdrant.from_documents(sources,embedding,url=url,api_key=api_key,collection_name=collection_name)
     elif db_type == 'chroma':
         assert persist_directory is not None
         makedirs(persist_directory, exist_ok=True)
@@ -157,6 +164,8 @@ def add_to_db(db, sources, db_type='faiss',
         if num_new_sources == 0:
             return db, num_new_sources, []
         db.add_documents(documents=sources)
+    elif db_type == 'qdrant':
+        db.add_documents(sources)
     elif db_type == 'chroma':
         collection = get_documents(db)
         # files we already have:
@@ -1935,10 +1944,12 @@ def _make_db(use_openai_embedding=False,
 
 
 def get_metadatas(db):
-    from langchain.vectorstores import FAISS
+    from langchain.vectorstores import FAISS, Qdrant
     if isinstance(db, FAISS):
         metadatas = [v.metadata for k, v in db.docstore._dict.items()]
     elif isinstance(db, Chroma):
+        metadatas = get_documents(db)['metadatas']
+    elif isinstance(db, Qdrant):
         metadatas = get_documents(db)['metadatas']
     else:
         # FIXME: Hack due to https://github.com/weaviate/weaviate/issues/1947
@@ -1960,11 +1971,13 @@ def get_documents(db):
 
 
 def _get_documents(db):
-    from langchain.vectorstores import FAISS
+    from langchain.vectorstores import FAISS,Qdrant
     if isinstance(db, FAISS):
         documents = [v for k, v in db.docstore._dict.items()]
     elif isinstance(db, Chroma):
         documents = db.get()
+    elif isinstance(db, Qdrant):
+        documents = [v for k, v in db.docstore._dict.items()]
     else:
         # FIXME: Hack due to https://github.com/weaviate/weaviate/issues/1947
         # seems no way to get all metadata, so need to avoid this approach for weaviate

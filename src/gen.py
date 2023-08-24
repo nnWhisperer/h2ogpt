@@ -385,7 +385,7 @@ def main(
     :param load_db_if_exists: Whether to load chroma db if exists or re-generate db
     :param keep_sources_in_context: Whether to keep url sources in context, not helpful usually
     :param use_system_prompt: Whether to use system prompt (e.g. llama2 safe system prompt)
-    :param db_type: 'faiss' for in-memory or 'chroma' or 'weaviate' for persisted on disk
+    :param db_type: 'faiss' for in-memory or 'chroma' or 'weaviate' or 'qdrant' for persisted on disk
     :param use_openai_embedding: Whether to use OpenAI embeddings for vector db
     :param use_openai_model: Whether to use OpenAI model for use with vector db
     :param hf_embedding_model: Which HF embedding model to use for vector db

@@ -1,4 +1,4 @@
-## h2oGPT integration with LangChain and Chroma/FAISS/Weaviate for Vector DB
+## h2oGPT integration with LangChain and Chroma/FAISS/Weaviate/Qdrant for Vector DB
 
 Our goal is to make it easy to have private offline document question-answer using LLMs.
 
